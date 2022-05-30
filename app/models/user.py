@@ -11,14 +11,15 @@ class User(BaseModel):
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
     username = db.Column(db.String(50), nullable=False, unique=True)
-    # password_hash = db.Column(db.String(100), nullable=False)
+    password_hash = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), nullable=False, unique=True)
     join_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
-        self.password_hash = self.set_password(self.password_hash)
+        if self.password_hash is not None:
+            self.set_password(self.password_hash)
 
     @classmethod
     def find_by_username(cls, username):
