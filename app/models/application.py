@@ -1,5 +1,6 @@
 from app import db
 from app.models.file import Applied
+from app.models import BaseModel
 from datetime import datetime
 from enum import Enum
 
@@ -13,7 +14,7 @@ class ApplicationStatusEnum(Enum):
     accepted = "ACCEPTED"
 
 
-class Application(db.Model):
+class Application(BaseModel):
     __tablename__ = "application"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -29,6 +30,10 @@ class Application(db.Model):
     posting = db.relationship('Posting', backref=db.backref('applications', lazy=True))
 
     files = db.relationship('File', secondary=Applied, lazy='subquery', backref=db.backref('applications', lazy=True))
-    
+
+    @classmethod
+    def find_by_status(cls, status):
+        return cls.query.filter_by(status=status)
+
     def __repr__(self):
         return f"<Application '{self.user.username}' for '{self.posting.position_title}' at '{self.posting.company.name.capitalize()}'>"

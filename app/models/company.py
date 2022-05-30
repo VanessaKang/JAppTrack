@@ -1,6 +1,8 @@
 from app import db
+from app.models import BaseModel
 
-class Company(db.Model):
+
+class Company(BaseModel):
     __tablename__ = "company"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -12,6 +14,10 @@ class Company(db.Model):
         # Ensure uniqueness by lowercasing strings
         if isinstance(self.name, str):
             self.name = self.name.lower()
-        
+    
+    @classmethod
+    def find_by_name(cls, name):
+        return cls.query.filter_by(name=name).first()
+
     def __repr__(self):
         return f"<Company '{self.name}'>"

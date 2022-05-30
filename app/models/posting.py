@@ -1,5 +1,6 @@
 from app import db
 from enum import Enum
+from app.models import BaseModel
 
 
 class PostingSourceEnum(Enum):
@@ -13,7 +14,7 @@ class PostingSourceEnum(Enum):
     other = "OTHER"
 
 
-class Posting(db.Model):
+class Posting(BaseModel):
     __tablename__ = "posting"
 
     id = db.Column(db.Integer, primary_key=True)
