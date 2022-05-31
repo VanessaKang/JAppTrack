@@ -1,13 +1,14 @@
+from sqlalchemy.orm import validates
 from app import db
 from app.models.file import Applied
-from app.models import BaseModel
+from app.models import BaseModel, ModelValidationException
 from datetime import datetime
 from enum import Enum
 
 
 class ApplicationStatusEnum(Enum):
-    submitted = "SUBMITTED"
     planned = "PLANNED"
+    submitted = "SUBMITTED"
     viewed = "VIEWED"
     rejected = "REJECTED"
     interview = "INTERVIEW"
@@ -18,7 +19,7 @@ class Application(BaseModel):
     __tablename__ = "application"
 
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
+    submission_date = db.Column(db.DateTime)
     notes = db.Column(db.Text)
     recruiter = db.Column(db.String(100))
     status = db.Column(db.Enum(ApplicationStatusEnum), nullable=False, default=ApplicationStatusEnum.planned)
@@ -30,6 +31,12 @@ class Application(BaseModel):
     posting = db.relationship('Posting', backref=db.backref('applications', lazy=True))
 
     files = db.relationship('File', secondary=Applied, lazy='subquery', backref=db.backref('applications', lazy=True))
+
+    @validates("status")
+    def validate_submission_date(self, key, status):
+        if status != ApplicationStatusEnum.planned and self.submission_date is None:
+            raise ModelValidationException("Date is required for submitted applications")
+        return status
 
     @classmethod
     def find_by_status(cls, status):
