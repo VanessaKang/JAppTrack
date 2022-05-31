@@ -1,5 +1,6 @@
+from sqlalchemy.orm import validates
 from app import db
-from app.models import BaseModel
+from app.models import BaseModel, ModelValidationException
 
 
 class Company(BaseModel):
@@ -8,12 +9,14 @@ class Company(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     
-    def __init__(self, **kwargs):
-        super(Company, self).__init__(**kwargs)
-
-        # Ensure uniqueness by lowercasing strings
-        if isinstance(self.name, str):
-            self.name = self.name.lower()
+    @validates('name')
+    def validate_name(self, key, name):
+        # Ensure uniqueness by lowercasing
+        if isinstance(name, str):
+            name = name.lower()
+        if Company.query.filter_by(name=name).first():
+            raise ModelValidationException("Company name is not unique.")
+        return name
     
     @classmethod
     def find_by_name(cls, name):
