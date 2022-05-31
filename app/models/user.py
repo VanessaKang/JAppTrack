@@ -1,6 +1,7 @@
 from app import db
-from app.models import BaseModel
+from app.models import BaseModel, ModelValidationException
 from datetime import datetime
+from sqlalchemy.orm import validates
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -18,13 +19,29 @@ class User(BaseModel):
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
+        
+        # Overwrite user provided password with hash of password
         if self.password_hash is not None:
             self.set_password(self.password_hash)
 
+    # Validators
+    @validates('username')
+    def validate_username(self, key, username):
+        if User.query.filter_by(username=username).first():
+            raise ModelValidationException("Username is not unique")
+        return username
+
+    @validates('email')
+    def validate_email(self, key, email):
+        if User.query.filter_by(email=email).first():
+            raise ModelValidationException("Account with this email exists")
+        return email
+
+    # Helpers
     @classmethod
     def find_by_username(cls, username):
-        return cls.query.filter_by(username=username).first() 
-    
+        return cls.query.filter_by(username=username).first()
+
     @classmethod
     def find_by_email(cls, email):
         return cls.query.filter_by(email=email).first()

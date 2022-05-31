@@ -19,3 +19,10 @@ class BaseModel(db.Model):
     def delete_from_db(self):
         db.session.delete(self)
         db.session.commit()
+
+
+class ModelValidationException(Exception):
+    def json(self):
+        return {
+            "error": self.args[0]
+        }
