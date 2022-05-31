@@ -1,6 +1,7 @@
 from app import db
 from enum import Enum
-from app.models import BaseModel
+from sqlalchemy.orm import validates
+from app.models import BaseModel, ModelValidationException
 
 
 class PostingSourceEnum(Enum):
@@ -27,6 +28,12 @@ class Posting(BaseModel):
 
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
     company = db.relationship('Company', backref=db.backref('postings', lazy=True))
+
+    @validates("url")
+    def validate_url(self, key, url):
+        if Posting.query.filter_by(url=url).first():
+            raise ModelValidationException("Posting exists.")
+        return url
 
     def __repr__(self):
         return f"<Posting '{self.position_title}' at '{self.company.name.capitalize()}'>"
