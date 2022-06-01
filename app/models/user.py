@@ -59,5 +59,16 @@ class User(BaseModel):
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
 
+    def to_json(self):
+        return {
+            "id": self.id, 
+            "first_name": self.first_name, 
+            "last_name": self.last_name, 
+            "username":self.username, 
+            "email": self.email, 
+            "join_date": self.join_date, 
+            "is_active": self.is_active
+        }
+
     def __repr__(self):
         return f"<User '{self.username}'>"
