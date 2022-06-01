@@ -37,10 +37,13 @@ CLFile = File(type='resume', name='VanessaCoverLetter')
 
 amazon_app = Application(posting=sde_posting, user=user1)
 meta_app = Application(posting=test_posting, user=user1)
+db.session.add(amazon)
+db.session.add(meta)
+db.session.commit()
 
-interview1 = Interview(application=amazon_app, date=datetime.utcnow(), type='coding')
-interview2 = Interview(application=amazon_app, date=datetime.utcnow()+timedelta(days=5), type='system_design')
-interview3 = Interview(application=meta_app, date=datetime.utcnow()+timedelta(days=10), type='system_design')
+interview1 = Interview(scheduled_date=datetime.utcnow(), application=amazon_app, type='coding')
+interview2 = Interview(scheduled_date=datetime.utcnow()+timedelta(days=5), application=amazon_app, type='system_design')
+interview3 = Interview(scheduled_date=datetime.utcnow()+timedelta(days=10), application=meta_app, type='system_design')
 
 db.session.add(amazon)
 db.session.add(meta)
