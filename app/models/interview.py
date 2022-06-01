@@ -1,8 +1,8 @@
-from operator import and_
 from app import db
 from app.models import BaseModel, ModelValidationException, application
 from app.models.user import User
-from sqlalchemy.orm import validates, and_
+from sqlalchemy.orm import validates
+from sqlalchemy import and_
 from enum import Enum
 
 
