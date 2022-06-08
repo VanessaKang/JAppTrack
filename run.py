@@ -1,10 +1,12 @@
 import os
-from app import create_app, db
+from app import create_app, db, ma
 from app.models.company import Company
 from app.models.posting import Posting
 from app.models.user import User
 from app.models.interview import Interview
 from app.models.file import File
+from app.models.application import Application, ApplicationStatusEnum
+from marshmallow_enum import EnumField
 from flask import jsonify
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -12,10 +14,31 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app = create_app()
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.path.join(basedir, "app.db")
 
+class UserSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = User
+
+    id = ma.auto_field()
+    first_name = ma.auto_field()
+    last_name = ma.auto_field()
+    applications = ma.auto_field()
+
+class ApplicationSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Application
+        include_fk = True
+    
+    id = ma.auto_field()
+    submission_date = ma.auto_field()
+    status = EnumField(ApplicationStatusEnum)
+    
+
 @app.shell_context_processor
 def make_shell_context():
     return {"db": db, "Company": Company, "Posting": Posting,
-            "User": User, "Interview": Interview, "File": File}
+            "User": User, "Interview": Interview, "File": File,
+            "Application": Application,
+            "UserSchema": UserSchema, "ApplicationSchema": ApplicationSchema}
 
 @app.route("/api/users")
 def get_users():
